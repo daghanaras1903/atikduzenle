@@ -1,0 +1,47 @@
+import discord
+from discord.ext import commands
+
+# Botun çalışma izinleri
+intents = discord.Intents.default()
+intents.message_content = True
+
+bot = commands.Bot(command_prefix="!", intents=intents)
+
+# Atık sınıflandırma sözlüğü
+atik_kategorileri = {
+    "plastik": ["plastik şişe", "poşet", "pet şişe", "plastik kap"],
+    "kağıt": ["gazete", "dergi", "karton", "kağıt", "ambalaj kağıdı"],
+    "cam": ["cam şişe", "kavanoz", "cam bardak"],
+    "organik": ["yemek artığı", "sebze", "meyve", "yumurta kabuğu"],
+    "metal": ["teneke", "çelik kutu", "alüminyum", "metal kap"],
+    "elektronik": ["pil", "telefon", "bilgisayar", "batarya", "lamba"]
+}
+
+# Bot çevrimiçi olduğunda mesaj
+@bot.event
+async def on_ready():
+    print(f'{bot.user} olarak giriş yapıldı!')
+
+# Atık sınıflandırma komutu
+@bot.command()
+async def sınıf(ctx, *, atik_adi: str):
+    kategori_bulundu = False
+    for kategori, atiklar in atik_kategorileri.items():
+        if atik_adi.lower() in atiklar:
+            await ctx.send(f'"{atik_adi}" atığı **{kategori.capitalize()}** kategorisine girer.')
+            kategori_bulundu = True
+            break
+    if not kategori_bulundu:
+        await ctx.send(f'"{atik_adi}" için bir kategori bulunamadı. Lütfen atık adını doğru girin veya farklı bir terim deneyin.')
+
+# Hataları yönetmek için mesaj
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandNotFound):
+        await ctx.send("Bu komut mevcut değil.")
+    else:
+        await ctx.send("Bir hata oluştu.")
+
+# Botu başlatmak için token girin
+bot.run("token_ekle")
+
